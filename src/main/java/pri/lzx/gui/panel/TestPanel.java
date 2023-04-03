@@ -7,10 +7,12 @@ import pri.lzx.gui.bean.Circle;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 @Slf4j(topic = "test")
 public class TestPanel extends JPanel {
-    private final AngleLine angleLine = new AngleLine(800, 300);
+    private final AngleLine angleLine = new AngleLine(600, 230);
     private final int length = 200; // 角度线段的长度
     private final double diff = 0.1; // 偏差
     private int radius = 100; //圆的半径
@@ -24,42 +26,41 @@ public class TestPanel extends JPanel {
     public void draw() {
         JFrame frame = new JFrame("CircleGUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1000, 1000);
+        frame.setSize(800, 500);
         TestPanel testPanel = new TestPanel();
         frame.add(testPanel);
-
-        // 创建一个滑块，用于控制两个圆的圆心距离
-        JSlider slider = new JSlider(SwingConstants.HORIZONTAL, 0, 2 * testPanel.radius, testPanel.L);
-        slider.setMajorTickSpacing(testPanel.radius / 2);
-        slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
-        // 添加slider监听器
-        slider.addChangeListener(e -> {
-            testPanel.L = ((JSlider) e.getSource()).getValue();
-            testPanel.repaint();
-        });
-        JButton jButton = new JButton("确定");
-        jButton.addActionListener(e -> {
-            double v = (2.0 * testPanel.radius - testPanel.L) / (2.0 * testPanel.radius);
-            double myAngel = Math.asin(1 - v);
-            double currDiff = Math.abs(1 - testPanel.angle / myAngel);
-            log.info("目标角度 {}，您给出的角度 {}，偏差 {} %", getRealAngel(testPanel.angle), getRealAngel(myAngel),
-                     String.format("%.2f", currDiff * 100)
-            );
-            if (currDiff <= diff) {
-                testPanel.angle = RandomUtil.randomDouble(getAngle(startAngel), getAngle(endAngel));
-                log.info("恭喜你！通过测试！！");
-                testPanel.repaint();
-            } else {
-                if (myAngel > testPanel.angle) {
-                    log.info("您打薄了~");
-                } else {
-                    log.info("您打厚了~");
+        final int offset = 5;
+        frame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                    testPanel.L += offset;
+                    testPanel.repaint();
+                } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                    testPanel.L -= offset;
+                    testPanel.repaint();
+                } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    double v = (2.0 * testPanel.radius - testPanel.L) / (2.0 * testPanel.radius);
+                    double myAngel = Math.asin(1 - v);
+                    double currDiff = Math.abs(1 - testPanel.angle / myAngel);
+                    log.info("目标角度 {}，您给出的角度 {}，偏差 {} %", getRealAngel(testPanel.angle),
+                             getRealAngel(myAngel),
+                             String.format("%.2f", currDiff * 100)
+                    );
+                    if (currDiff <= diff) {
+                        testPanel.angle = RandomUtil.randomDouble(getAngle(startAngel), getAngle(endAngel));
+                        log.info("恭喜你！通过测试！！");
+                        testPanel.repaint();
+                    } else {
+                        if (myAngel > testPanel.angle) {
+                            log.info("您打薄了~");
+                        } else {
+                            log.info("您打厚了~");
+                        }
+                    }
                 }
             }
         });
-        frame.add(jButton, BorderLayout.NORTH);
-        frame.add(slider, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
