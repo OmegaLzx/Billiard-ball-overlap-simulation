@@ -17,7 +17,9 @@ public class TestPanel extends JPanel {
     private final Circle circle1 = new Circle(100, 100, radius);
     private final Circle circle2 = new Circle(200, 100, radius);
     private int L = 200; // 两个圆的圆心距离
-    private double angle = RandomUtil.randomDouble(1) * Math.PI / 2; // 角度
+    private final double startAngel = 30;
+    private final double endAngel = 50;
+    private double angle = RandomUtil.randomDouble(getAngle(startAngel), getAngle(endAngel)); // 角度
 
     public void draw() {
         JFrame frame = new JFrame("CircleGUI");
@@ -42,10 +44,10 @@ public class TestPanel extends JPanel {
             double myAngel = Math.asin(1 - v);
             double currDiff = Math.abs(1 - testPanel.angle / myAngel);
             log.info("目标角度 {}，您给出的角度 {}，偏差 {} %", getRealAngel(testPanel.angle), getRealAngel(myAngel),
-                     String.format("%.2f", currDiff)
+                     String.format("%.2f", currDiff * 100)
             );
             if (currDiff <= diff) {
-                testPanel.angle = RandomUtil.randomDouble(1) * Math.PI / 2;
+                testPanel.angle = RandomUtil.randomDouble(getAngle(startAngel), getAngle(endAngel));
                 log.info("恭喜你！通过测试！！");
                 testPanel.repaint();
             } else {
@@ -81,5 +83,9 @@ public class TestPanel extends JPanel {
 
     private String getRealAngel(double angle) {
         return String.format("%.2f", angle / Math.PI * 180);
+    }
+
+    private double getAngle(double angle) {
+        return angle / 180 * Math.PI;
     }
 }
